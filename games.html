@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameCatalog - Каталог офлайн ігор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            color: #2d1b35;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px 0;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            color: #8b5a83;
+            text-shadow: 2px 2px 6px rgba(139, 90, 131, 0.3);
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #a4669a;
+            font-weight: 300;
+        }
+
+        /* Головна сторінка */
+        .main-page {
+            display: block;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 105, 180, 0.1), transparent);
+            transition: transform 0.6s;
+            transform: rotate(45deg) translateX(-100%);
+        }
+
+        .game-card:hover::before {
+            transform: rotate(45deg) translateX(100%);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 105, 180, 0.3);
+            border-color: rgba(255, 105, 180, 0.8);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .game-title {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #8b5a83;
+            font-weight: 600;
+        }
+
+        .game-preview {
+            font-size: 1em;
+            color: #a4669a;
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .game-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .tag {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        /* Сторінка деталей */
+        .detail-page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .detail-header {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 182, 193, 0.5);
+            text-align: center;
+        }
+
+        .detail-icon {
+            font-size: 6em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .detail-title {
+            font-size: 2.5em;
+            color: #8b5a83;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .detail-subtitle {
+            font-size: 1.2em;
+            color: #a4669a;
+            font-style: italic;
+        }
+
+        .detail-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .detail-main {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 182, 193, 0.5);
+        }
+
+        .detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 182, 193, 0.5);
+        }
+
+        .info-title {
+            font-size: 1.2em;
+            color: #8b5a83;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 105, 180, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #8b5a83;
+        }
+
+        .info-value {
+            color: #a4669a;
+        }
+
+        .back-btn {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+        }
+
+        .description-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #8b5a83;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .description-text {
+            color: #6b4c70;
+            margin-bottom: 15px;
+        }
+
+        .rating-stars {
+            color: #ff69b4;
+            font-size: 1.2em;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #a4669a;
+            margin-top: 50px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .detail-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-header {
+                padding: 25px;
+            }
+            
+            .detail-icon {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌸 GameCatalog</h1>
+            <p class="subtitle">Найкращі офлайн ігри для вашого дозвілля</p>
+        </header>
+
+        <!-- Головна сторінка -->
+        <div id="mainPage" class="main-page">
+            <div class="games-grid">
+                <!-- Гра 1 -->
+                <div class="game-card" onclick="showGameDetail('monopoly')">
+                    <div class="game-icon">🏠</div>
+                    <h2 class="game-title">Монополія</h2>
+                    <p class="game-preview">Класична економічна настільна гра про купівлю нерухомості та управління капіталом</p>
+                    <div class="game-tags">
+                        <span class="tag">Стратегія</span>
+                        <span class="tag">2-8 гравців</span>
+                        <span class="tag">60-180 хв</span>
+                    </div>
+                </div>
+
+                <!-- Гра 2 -->
+                <div class="game-card" onclick="showGameDetail('chess')">
+                    <div class="game-icon">♛</div>
+                    <h2 class="game-title">Шахи</h2>
+                    <p class="game-preview">Королівська гра стратегії та інтелекту, що існує вже понад 1500 років</p>
+                    <div class="game-tags">
+                        <span class="tag">Логіка</span>
+                        <span class="tag">2 гравці</span>
+                        <span class="tag">30-120 хв</span>
+                    </div>
+                </div>
+
+                <!-- Гра 3 -->
+                <div class="game-card" onclick="showGameDetail('uno')">
+                    <div class="game-icon">🎴</div>
+                    <h2 class="game-title">UNO</h2>
+                    <p class="game-preview">Динамічна карткова гра, що поєднує удачу, стратегію та веселощі</p>
+                    <div class="game-tags">
+                        <span class="tag">Карти</span>
+                        <span class="tag">2-10 гравців</span>
+                        <span class="tag">15-30 хв</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сторінки деталей -->
+        <div id="monopolyDetail" class="detail-page">
+            <div class="detail-header">
+                <div class="detail-icon">🏠</div>
+                <h1 class="detail-title">Монополія</h1>
+                <p class="detail-subtitle">Класична економічна настільна гра</p>
+            </div>
+
+            <div class="detail-content">
+                <div class="detail-main">
+                    <div class="description-section">
+                        <h3 class="section-title">📖 Опис гри</h3>
+                        <p class="description-text">
+                            Монополія - це легендарна настільна гра, яка навчає основам бізнесу та фінансів. Гравці рухаються по полю, купують нерухомість, будують будинки та готелі, а також стягують орендну плату з інших гравців.
+                        </p>
+                        <p class="description-text">
+                            Мета гри - стати найбагатшим гравцем, довівши своїх суперників до банкрутства. Гра поєднує елементи стратегії, переговорів та везіння.
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">🎯 Як грати</h3>
+                        <p class="description-text">
+                            1. Кидайте кубики та рухайтесь по полю<br>
+                            2. Купуйте нерухомість, на яку потрапили<br>
+                            3. Стягуйте орендну плату з інших гравців<br>
+                            4. Будуйте будинки та готелі для збільшення доходу<br>
+                            5. Уникайте банкрутства та перемагайте!
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">💡 Стратегічні поради</h3>
+                        <p class="description-text">
+                            • Купуйте помаранчеві та червоні властивості - на них найчастіше потрапляють<br>
+                            • Не витрачайте всі гроші відразу - залишайте резерв<br>
+                            • Будуйте рівномірно - 3 будинки дають найкращу рентабельність<br>
+                            • Торгуйтесь з іншими гравцями для створення монополій
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detail-sidebar">
+                    <div class="info-card">
+                        <h4 class="info-title">ℹ️ Інформація</h4>
+                        <div class="info-item">
+                            <span class="info-label">Гравці:</span>
+                            <span class="info-value">2-8</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Час:</span>
+                            <span class="info-value">60-180 хв</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Вік:</span>
+                            <span class="info-value">8+</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Жанр:</span>
+                            <span class="info-value">Стратегія</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">⭐ Рейтинг</h4>
+                        <div class="info-item">
+                            <span class="info-label">Складність:</span>
+                            <span class="info-value rating-stars">★★☆☆☆</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Веселощі:</span>
+                            <span class="info-value rating-stars">★★★★☆</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Стратегія:</span>
+                            <span class="info-value rating-stars">★★★★☆</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">📦 Комплектація</h4>
+                        <p class="description-text">
+                            • Ігрове поле<br>
+                            • 8 фігурок гравців<br>
+                            • 28 карток власності<br>
+                            • Гроші Монополії<br>
+                            • 32 будинки, 12 готелів<br>
+                            • 2 кубики
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="back-btn" onclick="showMainPage()">← Повернутися до каталогу</button>
+        </div>
+
+        <div id="chessDetail" class="detail-page">
+            <div class="detail-header">
+                <div class="detail-icon">♛</div>
+                <h1 class="detail-title">Шахи</h1>
+                <p class="detail-subtitle">Королівська гра стратегії та інтелекту</p>
+            </div>
+
+            <div class="detail-content">
+                <div class="detail-main">
+                    <div class="description-section">
+                        <h3 class="section-title">📖 Опис гри</h3>
+                        <p class="description-text">
+                            Шахи - це стародавня стратегічна гра для двох гравців, яка розвиває логічне мислення, концентрацію та планування. Кожен гравець керує армією з 16 фігур різних типів з унікальними можливостями пересування.
+                        </p>
+                        <p class="description-text">
+                            Мета гри - поставити мат королю суперника, тобто створити ситуацію, коли король знаходиться під атакою і не може уникнути захоплення.
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">🎯 Основні правила</h3>
+                        <p class="description-text">
+                            1. Білі завжди ходять першими<br>
+                            2. За один хід можна пересунути лише одну фігуру<br>
+                            3. Кожна фігура має свій унікальний спосіб пересування<br>
+                            4. Не можна залишати свого короля під шахом<br>
+                            5. Гра закінчується матом, патом або нічиєю
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">💡 Стратегічні принципи</h3>
+                        <p class="description-text">
+                            • Контролюйте центр дошки<br>
+                            • Розвивайте фігури швидко та ефективно<br>
+                            • Забезпечте безпеку свого короля рокіровкою<br>
+                            • Плануйте на кілька ходів вперед<br>
+                            • Вивчайте основні тактичні прийоми
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detail-sidebar">
+                    <div class="info-card">
+                        <h4 class="info-title">ℹ️ Інформація</h4>
+                        <div class="info-item">
+                            <span class="info-label">Гравці:</span>
+                            <span class="info-value">2</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Час:</span>
+                            <span class="info-value">30-120 хв</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Вік:</span>
+                            <span class="info-value">6+</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Жанр:</span>
+                            <span class="info-value">Логіка</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">⭐ Рейтинг</h4>
+                        <div class="info-item">
+                            <span class="info-label">Складність:</span>
+                            <span class="info-value rating-stars">★★★★★</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Веселощі:</span>
+                            <span class="info-value rating-stars">★★★☆☆</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Стратегія:</span>
+                            <span class="info-value rating-stars">★★★★★</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">♟️ Фігури</h4>
+                        <p class="description-text">
+                            ♔ Король - на 1 клітинку<br>
+                            ♕ Ферзь - в усі сторони<br>
+                            ♖ Тура - по лініях<br>
+                            ♗ Слон - по діагоналі<br>
+                            ♘ Кінь - буквою "Г"<br>
+                            ♙ Пішак - вперед на 1
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="back-btn" onclick="showMainPage()">← Повернутися до каталогу</button>
+        </div>
+
+        <div id="unoDetail" class="detail-page">
+            <div class="detail-header">
+                <div class="detail-icon">🎴</div>
+                <h1 class="detail-title">UNO</h1>
+                <p class="detail-subtitle">Динамічна карткова гра</p>
+            </div>
+
+            <div class="detail-content">
+                <div class="detail-main">
+                    <div class="description-section">
+                        <h3 class="section-title">📖 Опис гри</h3>
+                        <p class="description-text">
+                            UNO - це захоплююча карткова гра, яка поєднує простоту правил з непередбачуваністю та азартом. Гравці намагаються першими позбутися всіх карт, використовуючи спеціальні картки та стратегічне мислення.
+                        </p>
+                        <p class="description-text">
+                            Гра відома своїми яскравими картками та можливістю кардинально змінити хід гри в будь-який момент завдяки спеціальним картам-діям.
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">🎯 Як грати</h3>
+                        <p class="description-text">
+                            1. Кожен гравець отримує 7 карт<br>
+                            2. Викладіть картку того ж кольору або числа<br>
+                            3. Використовуйте спеціальні карти для перешкоджання суперникам<br>
+                            4. Кричіть "UNO!" коли залишилася одна карта<br>
+                            5. Перший, хто позбувся всіх карт - переможець!
+                        </p>
+                    </div>
+
+                    <div class="description-section">
+                        <h3 class="section-title">💡 Тактичні поради</h3>
+                        <p class="description-text">
+                            • Зберігайте спеціальні карти для критичних моментів<br>
+                            • Слідкуйте за картами суперників<br>
+                            • Міняйте колір, коли у вас багато карт одного кольору<br>
+                            • Не забувайте кричати "UNO!"<br>
+                            • Використовуйте карти "+4" обережно
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detail-sidebar">
+                    <div class="info-card">
+                        <h4 class="info-title">ℹ️ Інформація</h4>
+                        <div class="info-item">
+                            <span class="info-label">Гравці:</span>
+                            <span class="info-value">2-10</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Час:</span>
+                            <span class="info-value">15-30 хв</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Вік:</span>
+                            <span class="info-value">7+</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Жанр:</span>
+                            <span class="info-value">Карти</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">⭐ Рейтинг</h4>
+                        <div class="info-item">
+                            <span class="info-label">Складність:</span>
+                            <span class="info-value rating-stars">★★☆☆☆</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Веселощі:</span>
+                            <span class="info-value rating-stars">★★★★★</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Стратегія:</span>
+                            <span class="info-value rating-stars">★★★☆☆</span>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4 class="info-title">🃏 Спеціальні карти</h4>
+                        <p class="description-text">
+                            🔄 Реверс - змінює напрямок<br>
+                            🚫 Пропуск ходу<br>
+                            +2 Візьми дві карти<br>
+                            🌈 Зміна кольору<br>
+                            +4 Візьми чотири<br>
+                            🔥 Вогняна карта (новинка)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="back-btn" onclick="showMainPage()">← Повернутися до каталогу</button>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 GameCatalog. Ваш провідник у світі офлайн ігор.</p>
+        </footer>
+    </div>
+
+    <script>
+        function showGameDetail(gameId) {
+            // Приховати головну сторінку
+            document.getElementById('mainPage').style.display = 'none';
+            
+            // Приховати всі сторінки деталей
+            const detailPages = document.querySelectorAll('.detail-page');
+            detailPages.forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Показати вибрану сторінку деталей
+            document.getElementById(gameId + 'Detail').style.display = 'block';
+            
+            // Прокрутити до верху
+            window.scrollTo(0, 0);
+        }
+
+        function showMainPage() {
+            // Приховати всі сторінки деталей
+            const detailPages = document.querySelectorAll('.detail-page');
+            detailPages.forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Показати головну сторінку
+            document.getElementById('mainPage').style.display = 'block';
+            
+            // Прокрутити до верху
+            window.scrollTo(0, 0);
+        }
+
+        // Додати анімацію при завантаженні
+        window.addEventListener('load', () => {
+            document.querySelector('.container').style.animation = 'fadeIn 0.8s ease-in';
+        });
+    </script>
+</body>
+</html>
